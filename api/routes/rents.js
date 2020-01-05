@@ -68,6 +68,7 @@ router.post('/', (req,res,next)=>{
         });
         return rent.save()
     })
+    
         .then(result =>{
             console.log(result);
             res.status(201).json({
@@ -84,12 +85,11 @@ router.post('/', (req,res,next)=>{
             });
         })        
     
-    .catch(err=>{
-        res.status(500).json({
-            message: 'Book not found',
-            error: err
+        .catch(err=>{
+            res.status(404).json({
+                message:"Book already on rent"
+            });
         });
-    });
     
 });
 
