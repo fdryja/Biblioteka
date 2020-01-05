@@ -7,7 +7,7 @@ router.get('/', (req,res,next)=>{
     })
 });
 
-router.get('/', (req,res,next)=>{
+router.get('/:rentId', (req,res,next)=>{
     res.status(201).json({
         message: 'Rent details',
         orderId: req.params.rentId
@@ -15,8 +15,13 @@ router.get('/', (req,res,next)=>{
 });
 
 router.post('/', (req,res,next)=>{
+    const rent = {
+        bookId: req.body.bookId,
+        date: req.body.date
+    }
     res.status(201).json({
-        message: 'Rent was created'
+        message: 'Rent was created',
+        rent: rent
     })
 });
 
