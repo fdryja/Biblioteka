@@ -9,7 +9,7 @@ const rentRoutes = require('./api/routes/rents');
 
 mongoose.connect('mongodb+srv://Filip:'+ 
 process.env.MONGO_ATLAS_PW +
-'@biblioteka-tjaiu.mongodb.net/test?retryWrites=true&w=majority');
+'@biblioteka-tjaiu.mongodb.net/test?retryWrites=true&w=majority', {useNewUrlParser: true,  useUnifiedTopology: true });
 
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
