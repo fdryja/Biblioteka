@@ -1,13 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require('mongoose');
+const checkAuth = require('../middleware/check-auth');
 
 const Rent = require('../models/rent')
 const Book = require('../models/book');
 
-router.get('/', (req,res,next)=>{
+router.get('/', checkAuth, (req,res,next)=>{
     Rent.find()
     .select('book date _id')
+    .populate('book', 'name')
     .exec()
     .then(docs =>{
         res.status(200).json({
@@ -31,8 +33,9 @@ router.get('/', (req,res,next)=>{
     });
 });
 
-router.get('/:rentId', (req,res,next)=>{
+router.get('/:rentId', checkAuth, (req,res,next)=>{
     Rent.findById(req.params.rentId)
+    .populate('book')
     .exec()
     .then(rent=>{
         if(!rent){
@@ -53,7 +56,7 @@ router.get('/:rentId', (req,res,next)=>{
     });
 });
 
-router.post('/', (req,res,next)=>{
+router.post('/', checkAuth, (req,res,next)=>{
     Book.findById(req.body.bookId)
     .then(book =>{
         if(!book){
@@ -93,7 +96,7 @@ router.post('/', (req,res,next)=>{
     
 });
 
-router.delete('/:rentId', (req,res,next)=>{
+router.delete('/:rentId', checkAuth, (req,res,next)=>{
     Rent.findById({_id: req.params.rentId})
     .exec()
     .then(result=>{
