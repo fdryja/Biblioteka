@@ -3,8 +3,9 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const checkAuth = require('../middleware/check-auth');
 
-const Rent = require('../models/rent')
+const Rent = require('../models/rent');
 const Book = require('../models/book');
+const Member = require('../models/member');
 
 router.get('/', checkAuth, (req,res,next)=>{
     Rent.find()

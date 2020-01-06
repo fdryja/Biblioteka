@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const bookRoutes = require('./api/routes/books');
 const rentRoutes = require('./api/routes/rents');
 const userRoutes = require('./api/routes/user');
+const memberRoutes = require('./api/routes/members');
 
 mongoose.connect('mongodb+srv://Filip:'+ 
 process.env.MONGO_ATLAS_PW +
@@ -30,6 +31,7 @@ app.use((req, res, next)=>{
 app.use('/books', bookRoutes);
 app.use('/rents', rentRoutes);
 app.use('/user', userRoutes);
+app.use('/members', memberRoutes);
 
 app.use((req, res, next)=>{
     const error = new Error('Not found');

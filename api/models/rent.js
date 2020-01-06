@@ -3,6 +3,7 @@ mongoose.set('useCreateIndex', true);
 const rentSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     book: {type: mongoose.Schema.Types.ObjectId, ref: 'Book', required: true, unique: true},
+    member: {type: mongoose.Schema.Types.ObjectId, ref: 'Member', required: true},
     date: {type: Date, default: Date.now()}
 });
 
