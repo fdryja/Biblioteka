@@ -45,7 +45,7 @@ router.get('/:rentId', checkAuth, (req,res,next)=>{
     .exec()
     .then(rent=>{
         if(!rent){
-            return res.status(404).json({message: 'Rent not found'});
+            return res.status(404).json({message: 'Nie ma takiego wypożyczenia'});
         }
         res.status(200).json({
             rent: rent,
@@ -73,28 +73,28 @@ router.post('/', checkAuth, (req,res,next)=>{
     .then(member=>{
         if(!member){
             return res.status(404).json({
-                message: 'Member not found'
+                message: 'Czytelnik nie znaleziony'
             });
         }
         Book.findById(req.body.bookId)
             .then(book =>{
             if(!book){
                 return res.status(404).json({
-                    message: 'Book not found'
+                    message: 'Książka nie znaleziona'
                 });
             }
             Rent.find({book: req.body.bookId}).exec()
             .then(exists=>{
                 if(exists.length>=1){
                     return res.status(409).json({
-                        message: 'Book already on rent'
+                        message: 'Książka jest już wypożyczona'
                     });
                 }
                 rent.save()
                 .then(result =>{
                     console.log(result);
                     res.status(201).json({
-                        message: 'Rent added',
+                        message: 'Dodano wypożyczenie',
                         createdRent:{
                             _id: result._id,
                             book: result.book,
@@ -126,13 +126,14 @@ router.delete('/:rentId', checkAuth, (req,res,next)=>{
     .then(result=>{
         if(!result){
             return res.status(404).json({
-                message: 'Rent not found'
+                message: 'Nie ma takiego wypożyczenia'
             });
-        }else{Rent.remove({_id: req.params.rentId})
+        }
+        Rent.remove({_id: req.params.rentId})
         .exec()
         .then(result=>{
             res.status(200).json({
-                message: 'Rent deleted',
+                message: 'Usunięto wypożyczenie',
                 request:{
                     type:'POST',
                     url: 'http://localhost:3000/rents/',
@@ -140,14 +141,12 @@ router.delete('/:rentId', checkAuth, (req,res,next)=>{
                 }
             })
         })
-        .catch(err=>{
-            res.status(500).json({
-                message: 'Book not found',
-                error: err
-            });
-        });}
+    })
+    .catch(err=>{
+        res.status(err).json({
+            error: err
+        });
     });
-    
 });
 
 module.exports = router;

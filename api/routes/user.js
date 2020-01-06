@@ -12,7 +12,7 @@ router.post('/signup', (req, res, next)=>{
     .then(user=>{
         if(user.length>=1){
             return res.status(409).json({
-                message: 'E-mail already exists'
+                message: 'E-mail już istnieje'
             });
         } else{
             bcrypt.hash(req.body.password, 10, (err, hash)=>{
@@ -30,7 +30,7 @@ router.post('/signup', (req, res, next)=>{
                     .then(result=>{
                         console.log(result);
                         res.status(201).json({
-                            message: 'User created'
+                            message: 'Utworzono użytkownika'
                         });
                     })
                     .catch(err=>{
@@ -50,13 +50,13 @@ router.post('/login', (req, res, next)=>{
     .then(user =>{
         if(user.length<1){
             return res.status(401).json({
-                message: 'Auth failed'
+                message: 'Autoryzacja: niepowodzenie'
             });
         } else{
             bcrypt.compare(req.body.password, user[0].password, (err, result)=>{
                 if(err){
                     return res.status(401).json({
-                        message: 'Auth failed'
+                        message: 'Autoryzacja: niepowodzenie'
                     })
                 }
                 if(result){
@@ -69,12 +69,12 @@ router.post('/login', (req, res, next)=>{
                         expiresIn: "10h"
                     });
                     return res.status(200).json({
-                        message: 'Auth successful',
+                        message: 'Autoryzacja: powodzenie',
                         token: token
                     })
                 }
                 return res.status(401).json({
-                    message: 'Auth failed'
+                    message: 'Autoryzacja: niepowodzenie'
                 })
             });
         }
@@ -91,7 +91,7 @@ router.delete('/:userId',  checkAuth, (req, res, next)=>{
     User.remove({_id: req.params.userId}).exec()
     .then(result =>{
         res.status(200).json({
-            message: 'User deleted'
+            message: 'Usunięto użytkownika'
         });
     })
     .catch(err=>{

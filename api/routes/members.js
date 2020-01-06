@@ -48,14 +48,14 @@ router.post('/', checkAuth, (req, res, next)=>{
     .then(exists=>{
         if(exists.length>=1){
             return res.status(409).json({
-                message: 'E-mail already exists'
+                message: 'E-mail już istnieje'
             });
         }
         member.save()
             .then(result=>{
                 console.log(result);
                 res.status(201).json({
-                    message: "Created member successfully",
+                    message: "Utworzono czytelnika",
                     createdMember: {
                         name: result.name,
                         surname: result.surname,
@@ -91,7 +91,7 @@ router.get('/:memberId', checkAuth, (req, res, next) => {
                 }
             });
         }else {
-            res.status(404).json({message: 'No valid entry found for provided ID'});
+            res.status(404).json({message: 'Nie ma takiego numeru ID'});
         }
     })
     .catch(err => {
@@ -109,7 +109,7 @@ router.patch('/:memberId',checkAuth, (req, res, next) => {
     Member.update({_id: id}, {$set: updateOps}).exec()
     .then(result =>{
         res.status(200).json({
-            message: 'Member updated',
+            message: 'Zaktualizowano czytelnika',
             request:{
                 type: 'GET',
                 url: 'http://localhost:3000/members/' + id
@@ -129,7 +129,7 @@ router.delete('/:memberId',  checkAuth,(req, res, next) => {
     Member.remove({_id: id}).exec()
     .then(result =>{
         res.status(200).json({
-            message:'Member deleted',
+            message:'Usunięto czytelnika',
             request:{
                 type: 'POST',
                 url: 'http://localhost:3000/members/',

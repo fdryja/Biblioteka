@@ -46,7 +46,7 @@ router.post('/', checkAuth, (req, res, next)=>{
     .then(result=>{
         console.log(result);
         res.status(201).json({
-            message: "Created book successfully",
+            message: "Utworzono książkę",
             createdBook: {
                 name: result.name,
                 author: result.author,
@@ -80,7 +80,7 @@ router.get('/:bookId', (req, res, next) => {
                 }
             });
         }else {
-            res.status(404).json({message: 'No valid entry found for provided ID'});
+            res.status(404).json({message: 'Nie ma takiego numeru ID'});
         }
     })
     .catch(err => {
@@ -98,7 +98,7 @@ router.patch('/:bookId', checkAuth, (req, res, next) => {
     Book.update({_id: id}, {$set: updateOps}).exec()
     .then(result =>{
         res.status(200).json({
-            message: 'Book updated',
+            message: 'Zaktualizowano książkę',
             request:{
                 type: 'GET',
                 url: 'http://localhost:3000/books/' + id
@@ -118,7 +118,7 @@ router.delete('/:bookId',  checkAuth,(req, res, next) => {
     Book.remove({_id: id}).exec()
     .then(result =>{
         res.status(200).json({
-            message:'Book deleted',
+            message:'Usunięto książkę',
             request:{
                 type: 'POST',
                 url: 'http://localhost:3000/books/',
