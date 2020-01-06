@@ -38,7 +38,10 @@ router.get('/', checkAuth, (req,res,next)=>{
 
 router.get('/:rentId', checkAuth, (req,res,next)=>{
     Rent.findById(req.params.rentId)
-    .populate('book')
+    .select('book name author _id')
+    .populate('book', 'name author')
+    .select('member name surname email')
+    .populate('member', 'name surname email')
     .exec()
     .then(rent=>{
         if(!rent){
@@ -60,55 +63,62 @@ router.get('/:rentId', checkAuth, (req,res,next)=>{
 });
 
 router.post('/', checkAuth, (req,res,next)=>{
-    Member.findById(req.body.memberId).exec().then(member=>{
+    const rent = new Rent({
+        _id: mongoose.Types.ObjectId(),
+        book: req.body.bookId,
+        member: req.body.memberId,
+        date: req.body.date
+    });
+    Member.findById(req.body.memberId).exec()
+    .then(member=>{
         if(!member){
             return res.status(404).json({
                 message: 'Member not found'
             });
-        }else{
-            Book.findById(req.body.bookId)
+        }
+        Book.findById(req.body.bookId)
             .then(book =>{
             if(!book){
                 return res.status(404).json({
                     message: 'Book not found'
                 });
             }
-            const rent = new Rent({
-                _id: mongoose.Types.ObjectId(),
-                date: req.body.date,
-                book: req.body.bookId,
-                member: req.body.memberId
-            });
-            return rent.save()
-        })
-    
-        .then(result =>{
-            console.log(result);
-            res.status(201).json({
-                message: 'Rent added',
-                createrRent:{
-                    _id: result._id,
-                    book: result.book,
-                    member: result.member,
-                    date: result.date
-                },
-                request: {
-                    type: 'GET',
-                    url: 'http://localhost:3000/rents/' + result._id
+            Rent.find({book: req.body.bookId}).exec()
+            .then(exists=>{
+                if(exists.length>=1){
+                    return res.status(409).json({
+                        message: 'Book already on rent'
+                    });
                 }
-            });
-        })        
-    
-        }
-    })
-    
-        .catch(err=>{
-            res.status(404).json({
-                message:"Book already on rent"
-            });
+                rent.save()
+                .then(result =>{
+                    console.log(result);
+                    res.status(201).json({
+                        message: 'Rent added',
+                        createdRent:{
+                            _id: result._id,
+                            book: result.book,
+                            member: result.member,
+                            date: result.date
+                            },
+                            request: {
+                                type: 'GET',
+                                url: 'http://localhost:3000/rents/' + result._id
+                            }
+                        });
+                    });   
+                })
+            })
+        })
+        .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            error: err
         });
-    
-});
+    });
+});  
+
+
 
 router.delete('/:rentId', checkAuth, (req,res,next)=>{
     Rent.findById({_id: req.params.rentId})
