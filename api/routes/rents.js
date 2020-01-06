@@ -9,8 +9,9 @@ const Member = require('../models/member');
 
 router.get('/', checkAuth, (req,res,next)=>{
     Rent.find()
-    .select('book date _id')
-    .populate('book', 'name')
+    .select('book member date _id')
+    .populate('book', 'name author')
+    .populate('member','name surname email')
     .exec()
     .then(docs =>{
         res.status(200).json({
@@ -19,6 +20,7 @@ router.get('/', checkAuth, (req,res,next)=>{
                 return{
                     _id: doc._id,
                     book: doc.book,
+                    member: doc.member,
                     date: doc.date,
                     request:{
                         type:'GET',
@@ -58,20 +60,27 @@ router.get('/:rentId', checkAuth, (req,res,next)=>{
 });
 
 router.post('/', checkAuth, (req,res,next)=>{
-    Book.findById(req.body.bookId)
-    .then(book =>{
-        if(!book){
+    Member.findById(req.body.memberId).exec().then(member=>{
+        if(!member){
             return res.status(404).json({
-                message: 'Book not found'
+                message: 'Member not found'
             });
-        }
-        const rent = new Rent({
-            _id: mongoose.Types.ObjectId(),
-            date: req.body.date,
-            book: req.body.bookId
-        });
-        return rent.save()
-    })
+        }else{
+            Book.findById(req.body.bookId)
+            .then(book =>{
+            if(!book){
+                return res.status(404).json({
+                    message: 'Book not found'
+                });
+            }
+            const rent = new Rent({
+                _id: mongoose.Types.ObjectId(),
+                date: req.body.date,
+                book: req.body.bookId,
+                member: req.body.memberId
+            });
+            return rent.save()
+        })
     
         .then(result =>{
             console.log(result);
@@ -80,6 +89,7 @@ router.post('/', checkAuth, (req,res,next)=>{
                 createrRent:{
                     _id: result._id,
                     book: result.book,
+                    member: result.member,
                     date: result.date
                 },
                 request: {
@@ -88,6 +98,9 @@ router.post('/', checkAuth, (req,res,next)=>{
                 }
             });
         })        
+    
+        }
+    })
     
         .catch(err=>{
             res.status(404).json({
