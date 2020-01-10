@@ -8,7 +8,7 @@ const Book = require('../models/book');
 const Member = require('../models/member');
 
 
-router.get('/',  (req,res,next)=>{
+router.get('/', checkAuth, (req,res,next)=>{
     Rent.find()
     .select('book member date _id')
     .populate('book', 'name author')
@@ -63,29 +63,28 @@ router.get('/:rentId', checkAuth, (req,res,next)=>{
     });
 });
 
-router.post('/',  (req,res,next)=>{
+router.post('/', checkAuth, (req,res,next)=>{
     const rent = new Rent({
         _id: new mongoose.Types.ObjectId(),
-        book: req.body.bookId,
-        member: req.body.memberId,
+        book: req.body.book,
+        member: req.body.member,
         date: req.body.date
     });
-    Member.findById(req.body.memberId).exec()
+    Member.findById(req.body.member).exec()
     .then(member=>{
-        console.log(req.body.bookId);
         if(!member){
             return res.status(404).json({
                 message: 'Czytelnik nie znaleziony'
             });
         }
-        Book.findById(req.body.bookId)
+        Book.findById(req.body.book)
             .then(book =>{
             if(!book){
                 return res.status(404).json({
                     message: 'Książka nie znaleziona'
                 });
             }
-            Rent.find({book: req.body.bookId}).exec()
+            Rent.find({book: req.body.book}).exec()
             .then(exists=>{
                 if(exists.length>=1){
                     return res.status(409).json({

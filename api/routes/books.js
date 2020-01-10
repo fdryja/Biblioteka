@@ -36,7 +36,7 @@ router.get('/', (req, res, next)=>{
     });
 });
 
-router.post('/',  (req, res, next)=>{
+router.post('/', checkAuth, (req, res, next)=>{
     const book = new Book({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -113,7 +113,7 @@ router.patch('/:bookId', checkAuth, (req, res, next) => {
     });
 });
 
-router.delete('/:bookId',  checkAuth,(req, res, next) => {
+router.delete('/:bookId',  checkAuth, (req, res, next) => {
     const id = req.params.bookId;
     Book.remove({_id: id}).exec()
     .then(result =>{

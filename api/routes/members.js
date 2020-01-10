@@ -5,7 +5,7 @@ const checkAuth = require('../middleware/check-auth');
 
 const Member = require('../models/member');
 
-router.get('/',  (req, res, next)=>{
+router.get('/', checkAuth, (req, res, next)=>{
     Member.find()
     .select('name surname email _id')
     .exec()
@@ -37,7 +37,7 @@ router.get('/',  (req, res, next)=>{
     });
 });
 
-router.post('/', (req, res, next)=>{
+router.post('/', checkAuth, (req, res, next)=>{
     const member = new Member({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -100,7 +100,7 @@ router.get('/:memberId', checkAuth, (req, res, next) => {
     });
 });
 
-router.patch('/:memberId',checkAuth, (req, res, next) => {
+router.patch('/:memberId', checkAuth, (req, res, next) => {
     const id = req.params.memberId;
     const updateOps = {};
     for(const ops of req.body){
@@ -124,7 +124,7 @@ router.patch('/:memberId',checkAuth, (req, res, next) => {
     });
 });
 
-router.delete('/:memberId',  checkAuth,(req, res, next) => {
+router.delete('/:memberId',  checkAuth, (req, res, next) => {
     const id = req.params.memberId;
     Member.remove({_id: id}).exec()
     .then(result =>{

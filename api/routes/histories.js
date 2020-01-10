@@ -7,14 +7,14 @@ const History = require('../models/history');
 const Rent = require('../models/rent');
 
 
-router.get('/', (req, res, next)=>{
+router.get('/', checkAuth, (req, res, next)=>{
     History.find()
     .select('book member dateRent dateReturned _id')
     .exec()
     .then(docs =>{
         const response = {
             count: docs.length,
-            members: docs.map(doc =>{
+            history: docs.map(doc =>{
                 return{
                     book: doc.book,
                     member: doc.member,
@@ -41,7 +41,35 @@ router.get('/', (req, res, next)=>{
 });
 
 
-router.delete('/r/:rentId', (req,res,next)=>{
+router.get('/:historyId', checkAuth, (req,res,next)=>{
+    History.findById(req.params.historyId)
+    .select('book name author _id')
+    .populate('book', 'name author')
+    .select('member name surname email')
+    .populate('member', 'name surname email')
+    .select('history dateRent dateReturned')
+    .populate('history', 'dateRent dateReturned')
+    .exec()
+    .then(rent=>{
+        if(!rent){
+            return res.status(404).json({message: 'Nie ma takiego wypożyczenia'});
+        }
+        res.status(200).json({
+            rent: rent,
+            request:{
+                type: 'GET',
+                url: 'http://localhost:3000/histories/'
+            }              
+        });
+    })
+    .catch(err =>{
+        res.status(500).json({
+            error: err
+        });
+    });
+});
+
+router.delete('/r/:rentId', checkAuth, (req,res,next)=>{
     Rent.findById({_id: req.params.rentId})
     .exec()
     .then(result=>{
@@ -59,15 +87,40 @@ router.delete('/r/:rentId', (req,res,next)=>{
             dateReturned: Date.now()
         });
         history.save();
-        // console.log(result);
-        // res.status(200).json({
-        //     message: "Zapisano wypożyczenie"
-        // })
         Rent.remove({_id: req.params.rentId})
         .exec()
         .then(result=>{
             res.status(200).json({
                 message: 'Oddano książkę',
+                request:{
+                    type:'POST',
+                    url: 'http://localhost:3000/rents/',
+                    body: {bookId: "ID", date: 'Date'}
+                }
+            })
+        })
+    })
+    .catch(err=>{
+        res.status(err).json({
+            error: err
+        });
+    });
+}); 
+
+router.delete('/:historyId', checkAuth, (req,res,next)=>{
+    History.findById({_id: req.params.historyId})
+    .exec()
+    .then(result=>{
+        if(!result){
+            return res.status(404).json({
+                message: 'Nie ma takiego wypożyczenia w historii'
+            });
+        }
+        History.remove({_id: req.params.historyId})
+        .exec()
+        .then(result=>{
+            res.status(200).json({
+                message: 'Usunięto wypożyczenie',
                 request:{
                     type:'POST',
                     url: 'http://localhost:3000/rents/',
