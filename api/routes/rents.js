@@ -7,7 +7,8 @@ const Rent = require('../models/rent');
 const Book = require('../models/book');
 const Member = require('../models/member');
 
-router.get('/', checkAuth, (req,res,next)=>{
+
+router.get('/',  (req,res,next)=>{
     Rent.find()
     .select('book member date _id')
     .populate('book', 'name author')
@@ -62,15 +63,16 @@ router.get('/:rentId', checkAuth, (req,res,next)=>{
     });
 });
 
-router.post('/', checkAuth, (req,res,next)=>{
+router.post('/',  (req,res,next)=>{
     const rent = new Rent({
-        _id: mongoose.Types.ObjectId(),
+        _id: new mongoose.Types.ObjectId(),
         book: req.body.bookId,
         member: req.body.memberId,
         date: req.body.date
     });
     Member.findById(req.body.memberId).exec()
     .then(member=>{
+        console.log(req.body.bookId);
         if(!member){
             return res.status(404).json({
                 message: 'Czytelnik nie znaleziony'
@@ -148,5 +150,7 @@ router.delete('/:rentId', checkAuth, (req,res,next)=>{
         });
     });
 });
+
+
 
 module.exports = router;

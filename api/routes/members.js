@@ -5,7 +5,7 @@ const checkAuth = require('../middleware/check-auth');
 
 const Member = require('../models/member');
 
-router.get('/', checkAuth, (req, res, next)=>{
+router.get('/',  (req, res, next)=>{
     Member.find()
     .select('name surname email _id')
     .exec()
@@ -37,7 +37,7 @@ router.get('/', checkAuth, (req, res, next)=>{
     });
 });
 
-router.post('/', checkAuth, (req, res, next)=>{
+router.post('/', (req, res, next)=>{
     const member = new Member({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
