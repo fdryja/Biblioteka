@@ -7,6 +7,36 @@ const checkAuth = require('../middleware/check-auth');
 
 const User = require('../models/user');
 
+router.get('/', (req, res, next)=>{
+    User.find()
+    .select('email _id')
+    .exec()
+    .then(docs =>{
+        const response = {
+            count: docs.length,
+            books: docs.map(doc =>{
+                return{
+                    email: doc.email,
+                    _id: doc._id,
+                    url:{
+                        request:{
+                            type:'DELETE',
+                            url: 'http://localhost:3000/user/'+doc._id
+                        }
+                    }
+                }
+            })
+        };
+        res.status(200).json(response);
+    })
+    .catch(err=>{
+        console.log(err);
+        res.status(500).json({
+            error: err
+        })
+    });
+});
+
 router.post('/signup', (req, res, next)=>{
     User.find({email: req.body.email}).exec()
     .then(user=>{
@@ -30,7 +60,12 @@ router.post('/signup', (req, res, next)=>{
                     .then(result=>{
                         console.log(result);
                         res.status(201).json({
-                            message: 'Utworzono użytkownika'
+                            message: 'Utworzono użytkownika',
+                            request:{
+                                type:'POST',
+                                url: 'http://localhost:3000/user/login',
+                                body: {email: "email", password:"password"}
+                            }
                         });
                     })
                     .catch(err=>{

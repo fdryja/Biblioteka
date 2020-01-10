@@ -10,6 +10,8 @@ const Rent = require('../models/rent');
 router.get('/', checkAuth, (req, res, next)=>{
     History.find()
     .select('book member dateRent dateReturned _id')
+    .populate('book', 'name author')
+    .populate('member', 'name surname email')
     .exec()
     .then(docs =>{
         const response = {

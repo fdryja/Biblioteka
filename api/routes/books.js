@@ -65,6 +65,7 @@ router.post('/', checkAuth, (req, res, next)=>{
         });
     });
 });
+
 router.get('/:bookId', (req, res, next) => {
     const id = req.params.bookId;
     Book.findById(id)
