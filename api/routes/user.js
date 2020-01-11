@@ -7,7 +7,7 @@ const checkAuth = require('../middleware/check-auth');
 
 const User = require('../models/user');
 
-router.get('/',  (req, res, next)=>{
+router.get('/', checkAuth, (req, res, next)=>{
     User.find()
     .select('email _id')
     .exec()
